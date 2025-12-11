@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - eJuuz | Secure Account Access</title>
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="login.css">
+    <style>
+        /* Loading spinner styles */
+        .login-page-loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+        }
+        
+        .loading-spinner-large {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(194, 24, 91, 0.1);
+            border-top: 5px solid var(--color-dark-pink, #c2185b);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Hide page content while loading */
+        .login-page-main {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .login-page-main.loaded {
+            opacity: 1;
+        }
+        
+        /* Mobile menu styles */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 10px;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            z-index: 1001;
+        }
+        
+        .mobile-menu-toggle .bar {
+            display: block;
+            width: 24px;
+            height: 3px;
+            background-color: white;
+            transition: all 0.3s ease;
+            transform-origin: center;
+            border-radius: 2px;
+        }
+        
+        .login-header.scrolled .mobile-menu-toggle .bar {
+            background-color: var(--color-dark-pink);
+        }
+        
+        /* Mobile navigation */
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: flex;
+            }
+            
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: var(--color-dark-pink);
+                padding: 1rem;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                z-index: 1000;
+            }
+            
+            .nav-links.active {
+                display: block;
+            }
+            
+            .nav-links .nav-list {
+                flex-direction: column;
+                gap: 0.5rem;
+                margin-bottom: 1rem;
+            }
+            
+            .nav-links .nav-list li a {
+                display: block;
+                padding: 0.75rem 1rem;
+                border-radius: 8px;
+            }
+            
+            .header-auth-buttons {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .header-auth-buttons .btn-login,
+            .header-auth-buttons .btn-signup {
+                width: 100%;
+                text-align: center;
+            }
+        }
+        
+        /* Video styling - auto-play, no controls */
+        .feature-video {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            object-fit: cover;
+        }
+        
+        /* Error message styling */
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        
+        input.error,
+        select.error {
+            border-color: #dc3545 !important;
+        }
+        
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            white-space: nowrap;
+            border: 0;
+        }
+    </style>
+</head>
+<body class="login-page">
+    <!-- Loading overlay -->
+    <div class="login-page-loading">
+        <div class="loading-spinner-large"></div>
+    </div>
+    
+    <!-- Header -->
+    <header class="login-header">
+        <nav class="nav" role="navigation" aria-label="Main navigation">
+            <a class="brand" href="index.html" aria-label="eJuuz Home">
+                <img src="images/ejuuzlogo.png" alt="eJuuz Logo" width="48" height="48" loading="eager">
+            </a>
+            <div class="nav-links">
+                <ul class="nav-list" role="menubar">
+                    <li role="none"><a href="index.html#home" role="menuitem">Home</a></li>
+                    <li role="none"><a href="index.html#our-services" role="menuitem">Services</a></li>
+                    <li role="none"><a href="index.html#key-features" role="menuitem">Features</a></li>
+                </ul>
+                <div class="header-auth-buttons">
+                    <a href="login.html" class="btn-login active" aria-label="Login to your account">Login</a>
+                    <a href="signup.html" class="btn-signup" aria-label="Sign up for eJuuz">Sign Up</a>
+                </div>
+            </div>
+            <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle mobile menu" aria-expanded="false" aria-controls="nav-links">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main content -->
+    <main class="login-page-main">
+        <!-- Hero section -->
+        <section class="login-hero" aria-labelledby="hero-heading">
+            <div class="hero-container">
+                <div class="hero-content">
+                    <h1 id="hero-heading">Welcome Back</h1>
+                    <p class="hero-subtitle">
+                        Access your digital commerce dashboard, manage payments, track orders, and engage with your community.
+                    </p>
+                    <div class="hero-features">
+                        <div class="feature" aria-label="Secure login">
+                            <i class='bx bx-shield-alt' aria-hidden="true"></i>
+                            <span>Secure & Encrypted Login</span>
+                        </div>
+                        <div class="feature" aria-label="Multi-device access">
+                            <i class='bx bx-devices' aria-hidden="true"></i>
+                            <span>Access from Any Device</span>
+                        </div>
+                        <div class="feature" aria-label="24/7 support">
+                            <i class='bx bx-support' aria-hidden="true"></i>
+                            <span>24/7 Support Available</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="animated-logo">
+                        <img src="images/ejuuzlogo.png" alt="eJuuz Logo" class="hero-logo-image" width="150" height="150" loading="eager">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Login section -->
+        <section class="login-section" aria-labelledby="login-heading">
+            <div class="section-container">
+                <div class="login-grid">
+                    <!-- Login form card -->
+                    <div class="login-form-card">
+                        <div class="form-header">
+                            <h2 id="login-heading">Sign In to Your Account</h2>
+                            <p class="form-subtitle">Enter your credentials to access your dashboard</p>
+                        </div>
+                        
+                        <form class="login-form" id="login-form" novalidate>
+                            <!-- Email field -->
+                            <div class="form-group">
+                                <label for="login-email" class="form-label">
+                                    <span class="label-text">Email Address</span><span class="required">*</span>
+                                </label>
+                                <div class="input-with-icon">
+                                    <i class='bx bx-envelope' aria-hidden="true"></i>
+                                    <input 
+                                        type="email" 
+                                        id="login-email" 
+                                        name="email"
+                                        placeholder="Enter your email address" 
+                                        required
+                                        aria-required="true"
+                                        aria-describedby="email-help">
+                                    <div class="error-message" id="email-error" aria-live="polite"></div>
+                                </div>
+                                <div class="form-help" id="email-help">Enter the email associated with your account</div>
+                            </div>
+                            
+                            <!-- Password field -->
+                            <div class="form-group">
+                                <label for="login-password" class="form-label">
+                                    <span class="label-text">Password</span><span class="required">*</span>
+                                </label>
+                                <div class="input-with-icon">
+                                    <i class='bx bx-lock-alt' aria-hidden="true"></i>
+                                    <input 
+                                        type="password" 
+                                        id="login-password" 
+                                        name="password"
+                                        placeholder="Enter your password" 
+                                        required
+                                        minlength="8"
+                                        aria-required="true"
+                                        aria-describedby="password-help">
+                                    <button type="button" class="password-toggle" aria-label="Show password">
+                                        <i class='bx bx-show'></i>
+                                    </button>
+                                    <div class="error-message" id="password-error" aria-live="polite"></div>
+                                </div>
+                                <div class="form-help" id="password-help">Password must be at least 8 characters</div>
+                            </div>
+                            
+                            <!-- Account type field -->
+                            <div class="form-group">
+                                <label for="login-role" class="form-label">
+                                    <span class="label-text">Account Type</span><span class="required">*</span>
+                                </label>
+                                <div class="select-with-icon">
+                                    <i class='bx bx-user' aria-hidden="true"></i>
+                                    <select 
+                                        id="login-role" 
+                                        name="role"
+                                        required
+                                        aria-required="true"
+                                        aria-describedby="role-help">
+                                        <option value="" disabled selected>Select your account type</option>
+                                        <option value="user">User - Personal Account</option>
+                                        <option value="merchant">Merchant - Business Account</option>
+                                        <option value="driver">Driver - Delivery Partner</option>
+                                        <option value="ngo">NGO - Non-Profit Organization</option>
+                                        <option value="trader">Trader - Marketplace Seller</option>
+                                    </select>
+                                    <i class='bx bx-chevron-down select-arrow' aria-hidden="true"></i>
+                                    <div class="error-message" id="role-error" aria-live="polite"></div>
+                                </div>
+                                <div class="form-help" id="role-help">Select the type of account you have</div>
+                            </div>
+                            
+                            <!-- Form options -->
+                            <div class="form-options">
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="remember-me" name="remember">
+                                    <label for="remember-me" class="checkbox-label">Remember me</label>
+                                </div>
+                                <a href="forgot-password.html" class="forgot-password">Forgot password?</a>
+                            </div>
+                            
+                            <!-- Submit button -->
+                            <div class="form-actions">
+                                <button type="submit" class="btn-login-submit">
+                                    <span class="btn-text">Sign In</span>
+                                    <i class='bx bx-log-in' aria-hidden="true"></i>
+                                </button>
+                                <p class="form-note">
+                                    <i class='bx bx-shield-alt' aria-hidden="true"></i>
+                                    Your login is secured with 256-bit SSL encryption
+                                </p>
+                            </div>
+                            
+                            <!-- Form footer -->
+                            <div class="form-footer">
+                                <p>Don't have an account? <a href="signup.html" class="signup-link">Create account</a></p>
+                            </div>
+                        </form>
+                        
+                        <!-- Success message (hidden by default) -->
+                        <div class="login-success" id="login-success" hidden aria-live="polite" aria-atomic="true">
+                            <div class="success-icon"><i class='bx bx-check-circle'></i></div>
+                            <div class="success-content">
+                                <h3>Login Successful!</h3>
+                                <p>Redirecting to your dashboard...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Info card -->
+                    <div class="login-info-card">
+                        <div class="info-header">
+                            <h2>Why Login to eJuuz?</h2>
+                            <p class="info-subtitle">Unlock powerful features to manage your digital commerce experience</p>
+                        </div>
+                        <div class="info-features">
+                            <!-- Feature 1 -->
+                            <div class="info-feature" aria-labelledby="feature1-heading">
+                                <div class="feature-content">
+                                    <h3 id="feature1-heading" class="sr-only">Merchant Portal Demo</h3>
+                                    <video 
+                                        class="feature-video" 
+                                        autoplay
+                                        loop
+                                        muted
+                                        playsinline
+                                        preload="metadata"
+                                        poster="images/merchantportal.png"
+                                        aria-label="Merchant portal demonstration video">
+                                        <source src="images/vid2.mp4" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                    <p class="feature-description">__________________________</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Feature 2 -->
+                            <div class="info-feature" aria-labelledby="feature2-heading">
+                                <div class="feature-content">
+                                    <h3 id="feature2-heading" class="sr-only">Pay & Collect Demo</h3>
+                                    <video 
+                                        class="feature-video" 
+                                        autoplay
+                                        loop
+                                        muted
+                                        playsinline
+                                        preload="metadata"
+                                        poster="images/payandcollect.png"
+                                        aria-label="Pay & Collect demonstration video">
+                                        <source src="images/vid3.mp4" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                    <p class="feature-description">__________________________</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Feature 3 -->
+                            <div class="info-feature" aria-labelledby="feature3-heading">
+                                <div class="feature-content">
+                                    <h3 id="feature3-heading" class="sr-only">Order Management Demo</h3>
+                                    <video 
+                                        class="feature-video" 
+                                        autoplay
+                                        loop
+                                        muted
+                                        playsinline
+                                        preload="metadata"
+                                        poster="images/payandcollect.png"
+                                        aria-label="Order management demonstration video">
+                                        <source src="images/vid4.mp4" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                    <p class="feature-description">__________________________</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Feature 4 -->
+                            <div class="info-feature" aria-labelledby="feature4-heading">
+                                <div class="feature-content">
+                                    <h3 id="feature4-heading" class="sr-only">Analytics Demo</h3>
+                                    <video 
+                                        class="feature-video" 
+                                        autoplay
+                                        loop
+                                        muted
+                                        playsinline
+                                        preload="metadata"
+                                        poster="images/payandcollect.png"
+                                        aria-label="Analytics demonstration video">
+                                        <source src="images/vid5.mp4" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                    <p class="feature-description">__________________________</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Hide loading spinner
+            setTimeout(() => {
+                const loadingOverlay = document.querySelector('.login-page-loading');
+                const mainContent = document.querySelector('.login-page-main');
+                if (loadingOverlay) {
+                    loadingOverlay.style.opacity = '0';
+                    setTimeout(() => {
+                        loadingOverlay.style.display = 'none';
+                    }, 300);
+                }
+                if (mainContent) {
+                    mainContent.classList.add('loaded');
+                }
+            }, 300);
+            
+            // Mobile menu toggle
+            const mobileToggle = document.getElementById('mobile-menu-toggle');
+            const navLinks = document.querySelector('.nav-links');
+            if (mobileToggle && navLinks) {
+                mobileToggle.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const isExpanded = mobileToggle.getAttribute('aria-expanded') === 'true';
+                    mobileToggle.setAttribute('aria-expanded', !isExpanded);
+                    navLinks.classList.toggle('active');
+                    
+                    // Prevent body scroll when menu is open
+                    if (!isExpanded) {
+                        document.body.style.overflow = 'hidden';
+                    } else {
+                        document.body.style.overflow = '';
+                    }
+                });
+                
+                // Close menu when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (navLinks.classList.contains('active') && 
+                        !navLinks.contains(e.target) && 
+                        !mobileToggle.contains(e.target)) {
+                        mobileToggle.setAttribute('aria-expanded', 'false');
+                        navLinks.classList.remove('active');
+                        document.body.style.overflow = '';
+                    }
+                });
+            }
+            
+            // Password toggle functionality
+            const passwordToggle = document.querySelector('.password-toggle');
+            const passwordInput = document.getElementById('login-password');
+            if (passwordToggle && passwordInput) {
+                passwordToggle.addEventListener('click', () => {
+                    const type = passwordInput.type === 'password' ? 'text' : 'password';
+                    passwordInput.type = type;
+                    const icon = passwordToggle.querySelector('i');
+                    if (icon) {
+                        icon.className = type === 'password' ? 'bx bx-show' : 'bx bx-hide';
+                    }
+                    passwordToggle.setAttribute('aria-label', type === 'password' ? 'Show password' : 'Hide password');
+                });
+            }
+            
+            // Form validation and submission
+            const loginForm = document.getElementById('login-form');
+            if (loginForm) {
+                // Real-time validation
+                const emailInput = document.getElementById('login-email');
+                const passwordInput = document.getElementById('login-password');
+                const roleSelect = document.getElementById('login-role');
+                
+                const validateField = (field, errorId) => {
+                    const errorEl = document.getElementById(errorId);
+                    if (!errorEl) return true;
+                    
+                    if (field.validity.valid) {
+                        errorEl.textContent = '';
+                        field.classList.remove('error');
+                        return true;
+                    }
+                    
+                    if (field.validity.valueMissing) {
+                        errorEl.textContent = 'This field is required';
+                    } else if (field.validity.typeMismatch && field.type === 'email') {
+                        errorEl.textContent = 'Please enter a valid email address';
+                    } else if (field.validity.tooShort) {
+                        errorEl.textContent = `Minimum ${field.minLength} characters required`;
+                    }
+                    
+                    field.classList.add('error');
+                    return false;
+                };
+                
+                // Add input event listeners for real-time validation
+                if (emailInput) {
+                    emailInput.addEventListener('blur', () => validateField(emailInput, 'email-error'));
+                }
+                
+                if (passwordInput) {
+                    passwordInput.addEventListener('blur', () => validateField(passwordInput, 'password-error'));
+                }
+                
+                if (roleSelect) {
+                    roleSelect.addEventListener('change', () => validateField(roleSelect, 'role-error'));
+                }
+                
+                // Form submission
+                loginForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    
+                    // Validate all fields
+                    const isEmailValid = validateField(emailInput, 'email-error');
+                    const isPasswordValid = validateField(passwordInput, 'password-error');
+                    const isRoleValid = validateField(roleSelect, 'role-error');
+                    
+                    if (!isEmailValid || !isPasswordValid || !isRoleValid) {
+                        // Show general error
+                        const submitButton = loginForm.querySelector('.btn-login-submit');
+                        const originalText = submitButton.innerHTML;
+                        submitButton.innerHTML = '<span class="btn-text">Please fix errors above</span>';
+                        submitButton.style.backgroundColor = '#dc3545';
+                        
+                        setTimeout(() => {
+                            submitButton.innerHTML = originalText;
+                            submitButton.style.backgroundColor = '';
+                        }, 2000);
+                        return;
+                    }
+                    
+                    // Simulate login process
+                    const submitButton = loginForm.querySelector('.btn-login-submit');
+                    const originalText = submitButton.innerHTML;
+                    
+                    // Show loading state
+                    submitButton.innerHTML = '<span class="btn-text">Signing in...</span>';
+                    submitButton.disabled = true;
+                    
+                    // Simulate API call
+                    setTimeout(() => {
+                        // Show success message
+                        loginForm.style.display = 'none';
+                        const successMessage = document.getElementById('login-success');
+                        if (successMessage) {
+                            successMessage.hidden = false;
+                            successMessage.focus(); // Move focus to success message for screen readers
+                        }
+                        
+                        // Announce success for screen readers
+                        const announcement = document.createElement('div');
+                        announcement.className = 'sr-only';
+                        announcement.setAttribute('aria-live', 'assertive');
+                        announcement.setAttribute('aria-atomic', 'true');
+                        announcement.textContent = 'Login successful. Redirecting to dashboard...';
+                        document.body.appendChild(announcement);
+                        setTimeout(() => announcement.remove(), 1000);
+                        
+                        // Redirect after delay
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 2000);
+                    }, 1500);
+                });
+            }
+            
+            // Auto-play videos when they become visible
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            };
+            
+            const videoObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const video = entry.target;
+                        video.play().catch(e => {
+                            console.log('Video autoplay failed:', e);
+                            // Fallback: show poster image
+                            video.poster = video.getAttribute('data-poster') || video.poster;
+                        });
+                    } else {
+                        const video = entry.target;
+                        video.pause();
+                    }
+                });
+            }, observerOptions);
+            
+            // Observe all feature videos
+            document.querySelectorAll('.feature-video').forEach(video => {
+                videoObserver.observe(video);
+                // Store original poster as data attribute
+                video.setAttribute('data-poster', video.poster);
+            });
+        });
+    </script>
+</body>
+</html>

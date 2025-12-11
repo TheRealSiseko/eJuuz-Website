@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - eJuuz | Create Your Account</title>
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="login.css">
+    <style>
+        /* Loading spinner styles */
+        .login-page-loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+        }
+        
+        .loading-spinner-large {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(194, 24, 91, 0.1);
+            border-top: 5px solid var(--color-dark-pink, #c2185b);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Hide page content while loading */
+        .login-page-main {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .login-page-main.loaded {
+            opacity: 1;
+        }
+        
+        /* Mobile menu styles */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 10px;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            z-index: 1001;
+        }
+        
+        .mobile-menu-toggle .bar {
+            display: block;
+            width: 24px;
+            height: 3px;
+            background-color: white;
+            transition: all 0.3s ease;
+            transform-origin: center;
+            border-radius: 2px;
+        }
+        
+        .login-header.scrolled .mobile-menu-toggle .bar {
+            background-color: var(--color-dark-pink);
+        }
+        
+        /* Mobile navigation */
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: flex;
+            }
+            
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: var(--color-dark-pink);
+                padding: 1rem;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                z-index: 1000;
+            }
+            
+            .nav-links.active {
+                display: block;
+            }
+            
+            .nav-links .nav-list {
+                flex-direction: column;
+                gap: 0.5rem;
+                margin-bottom: 1rem;
+            }
+            
+            .nav-links .nav-list li a {
+                display: block;
+                padding: 0.75rem 1rem;
+                border-radius: 8px;
+            }
+            
+            .header-auth-buttons {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .header-auth-buttons .btn-login,
+            .header-auth-buttons .btn-signup {
+                width: 100%;
+                text-align: center;
+            }
+        }
+        
+        /* Video styling - auto-play, no controls */
+        .feature-video {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            object-fit: cover;
+        }
+        
+        /* Password strength meter */
+        .password-strength {
+            margin-top: 0.5rem;
+        }
+        
+        .password-strength-meter {
+            height: 4px;
+            width: 0%;
+            background: #f44336;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+        
+        .password-strength-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.25rem;
+            font-size: 0.75rem;
+            color: #666;
+        }
+        
+        .password-strength-labels span {
+            transition: color 0.3s ease;
+        }
+        
+        .password-strength-labels span.active {
+            color: var(--color-dark-pink);
+            font-weight: 600;
+        }
+        
+        /* Error message styling */
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        
+        input.error,
+        select.error {
+            border-color: #dc3545 !important;
+        }
+        
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            white-space: nowrap;
+            border: 0;
+        }
+    </style>
+</head>
+<body class="login-page signup-page">
+    <!-- Loading overlay -->
+    <div class="login-page-loading">
+        <div class="loading-spinner-large"></div>
+    </div>
+    
+    <!-- Header -->
+    <header class="login-header">
+        <nav class="nav" role="navigation" aria-label="Main navigation">
+            <a class="brand" href="index.html" aria-label="eJuuz Home">
+                <img src="images/ejuuzlogo.png" alt="eJuuz Logo" width="48" height="48" loading="eager">
+            </a>
+            <div class="nav-links">
+                <ul class="nav-list" role="menubar">
+                    <li role="none"><a href="index.html#home" role="menuitem">Home</a></li>
+                    <li role="none"><a href="index.html#our-services" role="menuitem">Services</a></li>
+                    <li role="none"><a href="index.html#key-features" role="menuitem">Features</a></li>
+                </ul>
+                <div class="header-auth-buttons">
+                    <a href="login.html" class="btn-login" aria-label="Login to your account">Login</a>
+                    <a href="signup.html" class="btn-signup active" aria-label="Sign up for eJuuz">Sign Up</a>
+                </div>
+            </div>
+            <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle mobile menu" aria-expanded="false" aria-controls="nav-links">
+                <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main content -->
+    <main class="login-page-main">
+        <!-- Hero section -->
+        <section class="login-hero" aria-labelledby="hero-heading">
+            <div class="hero-container">
+                <div class="hero-content">
+                    <h1 id="hero-heading">Join eJuuz Today</h1>
+                    <p class="hero-subtitle">Create your account and access digital payments, marketplace, and community tools.</p>
+                    <div class="hero-features">
+                        <div class="feature" aria-label="Free to start">
+                            <i class='bx bx-check-circle' aria-hidden="true"></i>
+                            <span>Free to start</span>
+                        </div>
+                        <div class="feature" aria-label="Quick setup">
+                            <i class='bx bx-time' aria-hidden="true"></i>
+                            <span>5 min setup</span>
+                        </div>
+                        <div class="feature" aria-label="24/7 support">
+                            <i class='bx bx-support' aria-hidden="true"></i>
+                            <span>24/7 support</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="animated-logo">
+                        <img src="images/ejuuzlogo.png" alt="eJuuz Logo" class="hero-logo-image" width="150" height="150" loading="eager">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Signup section -->
+        <section class="login-section" aria-labelledby="signup-heading">
+            <div class="section-container">
+                <div class="login-grid">
+                    <!-- Signup form card -->
+                    <div class="login-form-card">
+                        <div class="form-header">
+                            <h2 id="signup-heading">Create Your Account</h2>
+                            <p class="form-subtitle">Fill in your details to get started</p>
+                        </div>
+                        
+                        <form class="login-form" id="signup-form" novalidate>
+                            <!-- Account type -->
+                            <div class="form-group">
+                                <label for="account-type" class="form-label">
+                                    <span class="label-text">Account Type</span><span class="required">*</span>
+                                </label>
+                                <div class="select-with-icon">
+                                    <i class='bx bx-user' aria-hidden="true"></i>
+                                    <select id="account-type" name="account-type" required aria-required="true">
+                                        <option value="" disabled selected>Select account type</option>
+                                        <option value="user">User - Personal</option>
+                                        <option value="merchant">Merchant - Business</option>
+                                        <option value="driver">Driver - Delivery</option>
+                                        <option value="ngo">NGO - Non-Profit</option>
+                                        <option value="trader">Trader - Marketplace</option>
+                                    </select>
+                                    <i class='bx bx-chevron-down select-arrow' aria-hidden="true"></i>
+                                </div>
+                                <div class="error-message" id="account-type-error" aria-live="polite"></div>
+                            </div>
+                            
+                            <!-- Full name -->
+                            <div class="form-group">
+                                <label for="full-name" class="form-label">
+                                    Full Name<span class="required">*</span>
+                                </label>
+                                <div class="input-with-icon">
+                                    <i class='bx bx-user' aria-hidden="true"></i>
+                                    <input 
+                                        type="text" 
+                                        id="full-name" 
+                                        name="full-name"
+                                        placeholder="First Name and Last Name" 
+                                        required
+                                        minlength="2"
+                                        aria-required="true"
+                                        aria-describedby="name-help">
+                                </div>
+                                <div class="form-help" id="name-help">Enter your full legal name</div>
+                                <div class="error-message" id="full-name-error" aria-live="polite"></div>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="form-group">
+                                <label for="email" class="form-label">
+                                    Email<span class="required">*</span>
+                                </label>
+                                <div class="input-with-icon">
+                                    <i class='bx bx-envelope' aria-hidden="true"></i>
+                                    <input 
+                                        type="email" 
+                                        id="email" 
+                                        name="email"
+                                        placeholder="you@example.com" 
+                                        required
+                                        aria-required="true"
+                                        aria-describedby="email-help">
+                                </div>
+                                <div class="form-help" id="email-help">We'll never share your email</div>
+                                <div class="error-message" id="email-error" aria-live="polite"></div>
+                            </div>
+                            
+                            <!-- Phone -->
+                            <div class="form-group">
+                                <label for="phone" class="form-label">
+                                    Phone<span class="required">*</span>
+                                </label>
+                                <div class="input-with-icon">
+                                    <i class='bx bx-phone' aria-hidden="true"></i>
+                                    <input 
+                                        type="tel" 
+                                        id="phone" 
+                                        name="phone"
+                                        placeholder="+27 83 800 5227" 
+                                        pattern="^\+?[\d\s\-\(\)]+$"
+                                        required
+                                        aria-required="true"
+                                        aria-describedby="phone-help">
+                                </div>
+                                <div class="form-help" id="phone-help">Enter your mobile number with country code</div>
+                                <div class="error-message" id="phone-error" aria-live="polite"></div>
+                            </div>
+                            
+                            <!-- Password -->
+                            <div class="form-group">
+                                <label for="password" class="form-label">
+                                    Password<span class="required">*</span>
+                                </label>
+                                <div class="input-with-icon">
+                                    <i class='bx bx-lock-alt' aria-hidden="true"></i>
+                                    <input 
+                                        type="password" 
+                                        id="password" 
+                                        name="password"
+                                        placeholder="Min. 8 characters" 
+                                        required
+                                        minlength="8"
+                                        aria-required="true"
+                                        aria-describedby="password-help">
+                                    <button type="button" class="password-toggle" aria-label="Show password">
+                                        <i class='bx bx-show'></i>
+                                    </button>
+                                </div>
+                                <div class="password-strength">
+                                    <div class="password-strength-meter" id="strength-meter" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+                                    <div class="password-strength-labels">
+                                        <span id="strength-weak" class="active">Weak</span>
+                                        <span id="strength-fair">Fair</span>
+                                        <span id="strength-good">Good</span>
+                                        <span id="strength-strong">Strong</span>
+                                    </div>
+                                </div>
+                                <div class="form-help" id="password-help">Use 8+ characters with mix of letters, numbers & symbols</div>
+                                <div class="error-message" id="password-error" aria-live="polite"></div>
+                            </div>
+                            
+                            <!-- Confirm Password -->
+                            <div class="form-group">
+                                <label for="confirm-password" class="form-label">
+                                    Confirm Password<span class="required">*</span>
+                                </label>
+                                <div class="input-with-icon">
+                                    <i class='bx bx-lock-alt' aria-hidden="true"></i>
+                                    <input 
+                                        type="password" 
+                                        id="confirm-password" 
+                                        name="confirm-password"
+                                        placeholder="Re-enter password" 
+                                        required
+                                        aria-required="true"
+                                        aria-describedby="confirm-password-help">
+                                </div>
+                                <div class="form-help" id="confirm-password-help">Must match the password above</div>
+                                <div class="error-message" id="confirm-password-error" aria-live="polite"></div>
+                            </div>
+                            
+                            <!-- Terms agreement -->
+                            <div class="form-group">
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="terms" name="terms" required aria-required="true">
+                                    <label for="terms" class="checkbox-label">
+                                        I agree to the <a href="terms.html" target="_blank">Terms of Service</a> & <a href="privacy.html" target="_blank">Privacy Policy</a>
+                                    </label>
+                                </div>
+                                <div class="error-message" id="terms-error" aria-live="polite"></div>
+                            </div>
+                            
+                            <!-- Submit button -->
+                            <div class="form-actions">
+                                <button type="submit" class="btn-login-submit">
+                                    <span>Create Account</span>
+                                    <i class='bx bx-check' aria-hidden="true"></i>
+                                </button>
+                                <p class="form-note">
+                                    <i class='bx bx-shield-alt' aria-hidden="true"></i>
+                                    Your data is protected with bank-level security
+                                </p>
+                            </div>
+                            
+                            <!-- Form footer -->
+                            <div class="form-footer">
+                                <p>Already have an account? <a href="login.html" class="signup-link">Sign in</a></p>
+                            </div>
+                        </form>
+                        
+                        <!-- Success message (hidden by default) -->
+                        <div class="login-success" id="signup-success" hidden aria-live="polite" aria-atomic="true">
+                            <div class="success-icon"><i class='bx bx-check-circle'></i></div>
+                            <div class="success-content">
+                                <h3>Account Created!</h3>
+                                <p>Redirecting to dashboard...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Info card -->
+                    <div class="login-info-card">
+                        <div class="info-header">
+                            <h2>Why Join eJuuz?</h2>
+                            <p class="info-subtitle">Unlock powerful digital commerce tools</p>
+                        </div>
+                        <div class="info-features">
+                            <!-- Feature 1 -->
+                            <div class="info-feature" aria-labelledby="feature1-heading">
+                                <div class="feature-content">
+                                    <h3 id="feature1-heading" class="sr-only">Merchant Portal Demo</h3>
+                                    <video 
+                                        class="feature-video" 
+                                        autoplay
+                                        loop
+                                        muted
+                                        playsinline
+                                        preload="metadata"
+                                        poster="images/merchantportal.png"
+                                        aria-label="Merchant portal demonstration video">
+                                        <source src="images/vid2.mp4" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                    <p class="feature-description">__________________________</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Feature 2 -->
+                            <div class="info-feature" aria-labelledby="feature2-heading">
+                                <div class="feature-content">
+                                    <h3 id="feature2-heading" class="sr-only">Payments Demo</h3>
+                                    <video 
+                                        class="feature-video" 
+                                        autoplay
+                                        loop
+                                        muted
+                                        playsinline
+                                        preload="metadata"
+                                        poster="images/merchantportal.png"
+                                        aria-label="Payments demonstration video">
+                                        <source src="images/vid3.mp4" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                    <p class="feature-description">__________________________</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Feature 3 -->
+                            <div class="info-feature" aria-labelledby="feature3-heading">
+                                <div class="feature-content">
+                                    <h3 id="feature3-heading" class="sr-only">Order Management Demo</h3>
+                                    <video 
+                                        class="feature-video" 
+                                        autoplay
+                                        loop
+                                        muted
+                                        playsinline
+                                        preload="metadata"
+                                        poster="images/merchantportal.png"
+                                        aria-label="Order management demonstration video">
+                                        <source src="images/vid4.mp4" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                    <p class="feature-description">__________________________</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Feature 4 -->
+                            <div class="info-feature" aria-labelledby="feature4-heading">
+                                <div class="feature-content">
+                                    <h3 id="feature4-heading" class="sr-only">Analytics Demo</h3>
+                                    <video 
+                                        class="feature-video" 
+                                        autoplay
+                                        loop
+                                        muted
+                                        playsinline
+                                        preload="metadata"
+                                        poster="images/merchantportal.png"
+                                        aria-label="Analytics demonstration video">
+                                        <source src="images/vid6.mp4" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                    <p class="feature-description">__________________________</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Hide loading spinner
+            setTimeout(() => {
+                const loadingOverlay = document.querySelector('.login-page-loading');
+                const mainContent = document.querySelector('.login-page-main');
+                if (loadingOverlay) {
+                    loadingOverlay.style.opacity = '0';
+                    setTimeout(() => {
+                        loadingOverlay.style.display = 'none';
+                    }, 300);
+                }
+                if (mainContent) {
+                    mainContent.classList.add('loaded');
+                }
+            }, 300);
+            
+            // Mobile menu toggle
+            const mobileToggle = document.getElementById('mobile-menu-toggle');
+            const navLinks = document.querySelector('.nav-links');
+            if (mobileToggle && navLinks) {
+                mobileToggle.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const isExpanded = mobileToggle.getAttribute('aria-expanded') === 'true';
+                    mobileToggle.setAttribute('aria-expanded', !isExpanded);
+                    navLinks.classList.toggle('active');
+                    
+                    // Prevent body scroll when menu is open
+                    if (!isExpanded) {
+                        document.body.style.overflow = 'hidden';
+                    } else {
+                        document.body.style.overflow = '';
+                    }
+                });
+                
+                // Close menu when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (navLinks.classList.contains('active') && 
+                        !navLinks.contains(e.target) && 
+                        !mobileToggle.contains(e.target)) {
+                        mobileToggle.setAttribute('aria-expanded', 'false');
+                        navLinks.classList.remove('active');
+                        document.body.style.overflow = '';
+                    }
+                });
+            }
+            
+            // Password toggle functionality
+            document.querySelectorAll('.password-toggle').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const input = this.parentElement.querySelector('input');
+                    const type = input.type === 'password' ? 'text' : 'password';
+                    input.type = type;
+                    const icon = this.querySelector('i');
+                    if (icon) {
+                        icon.className = type === 'password' ? 'bx bx-show' : 'bx bx-hide';
+                    }
+                    this.setAttribute('aria-label', type === 'password' ? 'Show password' : 'Hide password');
+                });
+            });
+            
+            // Password strength meter
+            const passwordInput = document.getElementById('password');
+            const strengthMeter = document.getElementById('strength-meter');
+            const strengthLabels = {
+                weak: document.getElementById('strength-weak'),
+                fair: document.getElementById('strength-fair'),
+                good: document.getElementById('strength-good'),
+                strong: document.getElementById('strength-strong')
+            };
+            
+            if (passwordInput && strengthMeter) {
+                const updatePasswordStrength = () => {
+                    const password = passwordInput.value;
+                    let score = 0;
+                    
+                    // Length check
+                    if (password.length >= 8) score += 25;
+                    if (password.length >= 12) score += 10;
+                    
+                    // Character variety checks
+                    if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score += 25;
+                    if (/\d/.test(password)) score += 25;
+                    if (/[^a-zA-Z0-9]/.test(password)) score += 25;
+                    
+                    // Cap score at 100
+                    score = Math.min(score, 100);
+                    
+                    // Update meter
+                    strengthMeter.style.width = score + '%';
+                    strengthMeter.setAttribute('aria-valuenow', score);
+                    
+                    // Update color and labels
+                    let strength = 'weak';
+                    let color = '#f44336';
+                    
+                    if (score >= 80) {
+                        strength = 'strong';
+                        color = '#4caf50';
+                    } else if (score >= 60) {
+                        strength = 'good';
+                        color = '#ffc107';
+                    } else if (score >= 40) {
+                        strength = 'fair';
+                        color = '#ff9800';
+                    }
+                    
+                    strengthMeter.style.backgroundColor = color;
+                    
+                    // Update label classes
+                    Object.keys(strengthLabels).forEach(key => {
+                        if (strengthLabels[key]) {
+                            strengthLabels[key].classList.remove('active');
+                        }
+                    });
+                    
+                    if (strengthLabels[strength]) {
+                        strengthLabels[strength].classList.add('active');
+                    }
+                };
+                
+                passwordInput.addEventListener('input', updatePasswordStrength);
+                passwordInput.addEventListener('blur', updatePasswordStrength);
+            }
+            
+            // Form validation
+            const signupForm = document.getElementById('signup-form');
+            if (signupForm) {
+                const validateField = (field, errorId, validator = null) => {
+                    const errorEl = document.getElementById(errorId);
+                    if (!errorEl) return true;
+                    
+                    let isValid = field.validity.valid;
+                    
+                    // Custom validation
+                    if (validator) {
+                        isValid = validator(field.value);
+                    }
+                    
+                    if (isValid) {
+                        errorEl.textContent = '';
+                        field.classList.remove('error');
+                        return true;
+                    }
+                    
+                    // Set error message
+                    if (field.validity.valueMissing) {
+                        errorEl.textContent = 'This field is required';
+                    } else if (field.validity.typeMismatch && field.type === 'email') {
+                        errorEl.textContent = 'Please enter a valid email address';
+                    } else if (field.validity.patternMismatch) {
+                        errorEl.textContent = 'Please enter a valid phone number';
+                    } else if (field.validity.tooShort) {
+                        errorEl.textContent = `Minimum ${field.minLength} characters required`;
+                    } else if (field.id === 'confirm-password') {
+                        const password = document.getElementById('password').value;
+                        if (field.value !== password) {
+                            errorEl.textContent = 'Passwords do not match';
+                        }
+                    } else {
+                        errorEl.textContent = 'Please check this field';
+                    }
+                    
+                    field.classList.add('error');
+                    return false;
+                };
+                
+                // Real-time validation
+                const fields = [
+                    { id: 'account-type', errorId: 'account-type-error', validator: null },
+                    { id: 'full-name', errorId: 'full-name-error', validator: null },
+                    { id: 'email', errorId: 'email-error', validator: null },
+                    { id: 'phone', errorId: 'phone-error', validator: null },
+                    { id: 'password', errorId: 'password-error', validator: null },
+                    { id: 'confirm-password', errorId: 'confirm-password-error', validator: null }
+                ];
+                
+                fields.forEach(({ id, errorId, validator }) => {
+                    const field = document.getElementById(id);
+                    if (field) {
+                        field.addEventListener('blur', () => validateField(field, errorId, validator));
+                        if (id === 'confirm-password') {
+                            field.addEventListener('input', () => validateField(field, errorId, validator));
+                        }
+                    }
+                });
+                
+                // Terms checkbox validation
+                const termsCheckbox = document.getElementById('terms');
+                const termsError = document.getElementById('terms-error');
+                if (termsCheckbox) {
+                    termsCheckbox.addEventListener('change', () => {
+                        if (termsError) {
+                            if (termsCheckbox.checked) {
+                                termsError.textContent = '';
+                                termsCheckbox.classList.remove('error');
+                            } else {
+                                termsError.textContent = 'You must agree to the terms';
+                                termsCheckbox.classList.add('error');
+                            }
+                        }
+                    });
+                }
+                
+                // Form submission
+                signupForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    
+                    // Validate all fields
+                    let isValid = true;
+                    
+                    fields.forEach(({ id, errorId, validator }) => {
+                        const field = document.getElementById(id);
+                        if (field) {
+                            if (!validateField(field, errorId, validator)) {
+                                isValid = false;
+                            }
+                        }
+                    });
+                    
+                    // Validate terms
+                    if (termsCheckbox && !termsCheckbox.checked) {
+                        isValid = false;
+                        if (termsError) {
+                            termsError.textContent = 'You must agree to the terms';
+                            termsCheckbox.classList.add('error');
+                        }
+                    }
+                    
+                    if (!isValid) {
+                        // Scroll to first error
+                        const firstError = document.querySelector('.error');
+                        if (firstError) {
+                            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            firstError.focus();
+                        }
+                        return;
+                    }
+                    
+                    // Simulate signup process
+                    const submitButton = signupForm.querySelector('.btn-login-submit');
+                    const originalText = submitButton.innerHTML;
+                    
+                    // Show loading state
+                    submitButton.innerHTML = '<span>Creating account...</span>';
+                    submitButton.disabled = true;
+                    
+                    // Simulate API call
+                    setTimeout(() => {
+                        // Show success message
+                        signupForm.style.display = 'none';
+                        const successMessage = document.getElementById('signup-success');
+                        if (successMessage) {
+                            successMessage.hidden = false;
+                            successMessage.focus(); // Move focus to success message
+                        }
+                        
+                        // Announce success for screen readers
+                        const announcement = document.createElement('div');
+                        announcement.className = 'sr-only';
+                        announcement.setAttribute('aria-live', 'assertive');
+                        announcement.setAttribute('aria-atomic', 'true');
+                        announcement.textContent = 'Account created successfully. Redirecting to dashboard...';
+                        document.body.appendChild(announcement);
+                        setTimeout(() => announcement.remove(), 1000);
+                        
+                        // Redirect after delay
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 2000);
+                    }, 1500);
+                });
+            }
+            
+            // Auto-play videos when they become visible
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            };
+            
+            const videoObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const video = entry.target;
+                        video.play().catch(e => {
+                            console.log('Video autoplay failed:', e);
+                            // Fallback: show poster image
+                            video.poster = video.getAttribute('data-poster') || video.poster;
+                        });
+                    } else {
+                        const video = entry.target;
+                        video.pause();
+                    }
+                });
+            }, observerOptions);
+            
+            // Observe all feature videos
+            document.querySelectorAll('.feature-video').forEach(video => {
+                videoObserver.observe(video);
+                // Store original poster as data attribute
+                video.setAttribute('data-poster', video.poster);
+            });
+        });
+    </script>
+</body>
+</html>
